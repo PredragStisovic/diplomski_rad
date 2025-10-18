@@ -42,7 +42,11 @@ export class OrderRepository extends BaseRepository {
         },
       },
       include: {
-        OrderItems: true,
+        OrderItems: {
+          include: {
+            Record: true,
+          },
+        },
       },
     });
   }

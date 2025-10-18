@@ -40,4 +40,8 @@ export class CreateOrderDto {
 
   @IsNotEmpty()
   OrderItems: OrderItemForCreate[];
+
+  @IsOptional()
+  @IsString()
+  sendTo?: string;
 }

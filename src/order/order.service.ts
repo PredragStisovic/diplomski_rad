@@ -5,16 +5,31 @@ import { OrderRepository } from './order.repository';
 import { FilterDto } from 'src/dto/filter.dto';
 import { OrderHelper } from './order.helper';
 import { OrderItemForCreate } from './types/orderItemForCreate';
+import { SendgridService } from 'src/sendgrid/sendgrid.service';
+import { generateOrderEmail } from 'src/util/generate-email';
 
 @Injectable()
 export class OrderService {
   constructor(
     private readonly orderRepository: OrderRepository,
     private readonly helper: OrderHelper,
+    private readonly sendgridService: SendgridService,
   ) {}
   async create(createOrderDto: CreateOrderDto) {
     await this.helper.calculateTotal(createOrderDto);
-    return this.orderRepository.createOrder(createOrderDto);
+    const createdOrder = await this.orderRepository.createOrder(createOrderDto);
+
+    const generatedHtml = generateOrderEmail(createdOrder);
+
+    if (createOrderDto.sendTo) {
+      await this.sendgridService.sendEmail(
+        createOrderDto.sendTo,
+        'Uspešno kreirana porudžbina',
+        'Detalji porudžbine:',
+        generatedHtml,
+      );
+    }
+    return createdOrder;
   }
 
   findAll() {

@@ -10,6 +10,8 @@ import { RecordFileModule } from './record-file/record-file.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { OrderModule } from './order/order.module';
 import { OrderItemModule } from './order-item/order-item.module';
+import { SendgridService } from './sendgrid/sendgrid.service';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -24,6 +26,6 @@ import { OrderItemModule } from './order-item/order-item.module';
     OrderItemModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, SendgridService, ConfigService],
 })
 export class AppModule {}
