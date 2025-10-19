@@ -6,12 +6,14 @@ import {
   Patch,
   Param,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
 import { CreateWishlistDto } from './dto/create-wishlist.dto';
-import { UpdateWishlistDto } from './dto/update-wishlist.dto';
+import { JWTAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('wishlist')
+@UseGuards(JWTAuthGuard)
 export class WishlistController {
   constructor(private readonly wishlistService: WishlistService) {}
 

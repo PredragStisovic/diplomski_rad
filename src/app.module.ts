@@ -12,6 +12,8 @@ import { OrderModule } from './order/order.module';
 import { OrderItemModule } from './order-item/order-item.module';
 import { SendgridService } from './sendgrid/sendgrid.service';
 import { ConfigService } from '@nestjs/config';
+import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -24,6 +26,12 @@ import { ConfigService } from '@nestjs/config';
     WishlistModule,
     OrderModule,
     OrderItemModule,
+    CacheModule.register({
+      isGlobal: true,
+      store: redisStore,
+      host: 'localhost',
+      port: 6379,
+    }),
   ],
   controllers: [AppController],
   providers: [AppService, SendgridService, ConfigService],

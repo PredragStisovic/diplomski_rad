@@ -1,8 +1,11 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UsersRepository } from './user.repository';
 import { UsersHelpers } from './users.helper';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
+import { User } from '@prisma/client';
 const bcrypt = require('bcrypt');
 
 @Injectable()
@@ -10,6 +13,8 @@ export class UsersService {
   constructor(
     private usersRepository: UsersRepository,
     private usersHelper: UsersHelpers,
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -37,9 +42,13 @@ export class UsersService {
   }
 
   async findOneByEmail(email: string) {
-    const userWithRole = await this.usersRepository.getUserByEmail(email);
+    let user = await this.cacheManager.get<User | null>(email);
+    if (!user) {
+      user = await this.usersRepository.getUserByEmail(email);
+      this.cacheManager.set(email, user);
+    }
 
-    return userWithRole;
+    return user;
   }
 
   async update(id: number, updateUserDto: UpdateUserDto) {

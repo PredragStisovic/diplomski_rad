@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { CreateRecordDto } from './dto/create-record.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
 import { RecordRepository } from './record.repository';
@@ -6,6 +6,9 @@ import { RecordValidator } from './record.validator';
 import { FilesService } from 'src/file/file.service';
 import { RecordFileService } from 'src/record-file/record-file.service';
 import { FilterDto } from 'src/dto/filter.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import type { Cache } from 'cache-manager';
+import { FetchedRecordReturnType } from './types/fetched-record';
 
 @Injectable()
 export class RecordService {
@@ -14,6 +17,8 @@ export class RecordService {
     private readonly validator: RecordValidator,
     private readonly fileService: FilesService,
     private readonly recordFileService: RecordFileService,
+    @Inject(CACHE_MANAGER)
+    private cacheManager: Cache,
   ) {}
   async create(
     createRecordDto: CreateRecordDto,
@@ -64,8 +69,18 @@ export class RecordService {
     });
   }
 
-  findOne(id: number) {
-    return this.recordRepository.findById(id);
+  async findOne(id: number) {
+    let record = await this.cacheManager.get<FetchedRecordReturnType | null>(
+      id.toString(),
+    );
+    if (!record) {
+      record = await this.recordRepository.findById(id);
+      await this.cacheManager.set<FetchedRecordReturnType | null>(
+        String(record?.id),
+        record,
+      );
+    }
+    return record;
   }
 
   update(id: number, updateRecordDto: UpdateRecordDto) {
