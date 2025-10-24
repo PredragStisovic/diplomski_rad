@@ -32,6 +32,9 @@ export class WishlistRepository extends BaseRepository {
       where: {
         userId,
       },
+      include: {
+        Record: true,
+      },
     });
   }
 
