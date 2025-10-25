@@ -8,6 +8,7 @@ import {
   Delete,
   UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { RecordService } from './record.service';
 import { CreateRecordDto } from './dto/create-record.dto';
@@ -17,6 +18,7 @@ import { Roles } from 'src/auth/roles.decorator';
 import { RoleEnum } from '@prisma/client';
 import { RolesGuard } from 'src/auth/roles.guard';
 import { JWTAuthGuard } from 'src/auth/jwt-auth.guard';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('record')
 export class RecordController {
@@ -25,6 +27,7 @@ export class RecordController {
   @Post()
   @UseGuards(JWTAuthGuard, RolesGuard)
   @Roles(RoleEnum.Admin, RoleEnum.Worker)
+  @UseInterceptors(FilesInterceptor('files'))
   async create(
     @Body() createRecordDto: CreateRecordDto,
     @UploadedFiles() allFiles?: Express.Multer.File[],
@@ -48,8 +51,15 @@ export class RecordController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRecordDto: UpdateRecordDto) {
-    return this.recordService.update(+id, updateRecordDto);
+  @UseGuards(JWTAuthGuard, RolesGuard)
+  @Roles(RoleEnum.Admin, RoleEnum.Worker)
+  @UseInterceptors(FilesInterceptor('files'))
+  update(
+    @Param('id') id: string,
+    @Body() updateRecordDto: UpdateRecordDto,
+    @UploadedFiles() allFiles?: Express.Multer.File[],
+  ) {
+    return this.recordService.update(+id, updateRecordDto, allFiles);
   }
 
   @Delete(':id')

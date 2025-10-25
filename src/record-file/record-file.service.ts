@@ -21,4 +21,8 @@ export class RecordFileService {
   remove(fileId: string, recordId: number) {
     return this.RecordFileRepository.delete(fileId, recordId);
   }
+
+  update(fileId: string, recordId: number, tx?: PrismaServiceTransaction) {
+    return this.RecordFileRepository.update(fileId, recordId, tx);
+  }
 }

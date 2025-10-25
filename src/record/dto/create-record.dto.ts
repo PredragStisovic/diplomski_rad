@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateRecordDto {
@@ -7,6 +8,7 @@ export class CreateRecordDto {
 
   @IsNotEmpty()
   @IsNumber()
+  @Transform(({ value }) => parseFloat(value))
   price: number;
 
   @IsOptional()

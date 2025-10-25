@@ -68,8 +68,12 @@ export class RecordRepository extends BaseRepository {
     });
   }
 
-  update(id: number, updateRecordDto: UpdateRecordDto) {
-    return this.prisma.record.update({
+  update(
+    id: number,
+    updateRecordDto: UpdateRecordDto,
+    tx: PrismaServiceTransaction = this.prisma,
+  ) {
+    return tx.record.update({
       where: { id },
       data: updateRecordDto,
     });

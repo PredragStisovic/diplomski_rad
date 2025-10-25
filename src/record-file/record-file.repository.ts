@@ -30,4 +30,15 @@ export class RecordFileRepository extends BaseRepository {
       where: { fileId_recordId: { fileId, recordId } },
     });
   }
+
+  update(
+    fileId: string,
+    recordId: number,
+    tx: PrismaServiceTransaction = this.prisma,
+  ) {
+    return tx.recordFile.updateMany({
+      where: { recordId },
+      data: { fileId },
+    });
+  }
 }

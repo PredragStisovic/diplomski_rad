@@ -83,14 +83,40 @@ export class RecordService {
     return record;
   }
 
-  update(id: number, updateRecordDto: UpdateRecordDto) {
+  async update(
+    id: number,
+    updateRecordDto: UpdateRecordDto,
+    allFiles?: Express.Multer.File[],
+  ) {
     if (!this.validator.recordWithIdExists(id)) {
       throw new HttpException(
         'Ploca sa ovim ID-em ne postoji',
         HttpStatus.NOT_FOUND,
       );
     }
-    return this.recordRepository.update(id, updateRecordDto);
+    return await this.recordRepository.executeTransaction(
+      async (transaction) => {
+        const createdRecord = await this.recordRepository.update(
+          id,
+          updateRecordDto,
+          transaction,
+        );
+        if (allFiles && allFiles.length > 0) {
+          for (const file of allFiles) {
+            const createdFile = await this.fileService.saveFile(
+              file,
+              transaction,
+            );
+            await this.recordFileService.update(
+              createdFile.id,
+              createdRecord.id,
+              transaction,
+            );
+          }
+        }
+        return createdRecord;
+      },
+    );
   }
 
   remove(id: number) {
