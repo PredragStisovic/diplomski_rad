@@ -126,6 +126,9 @@ export class RecordService {
         HttpStatus.NOT_FOUND,
       );
     }
-    return this.recordRepository.delete(id);
+    this.recordRepository.executeTransaction(async (transaction) => {
+      await this.fileService.deleteFileForRecordId(id, transaction);
+      return this.recordRepository.delete(id, transaction);
+    });
   }
 }

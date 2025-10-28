@@ -91,10 +91,10 @@ model File {
 }
 
 model RecordFile {
-  File   File   @relation(fields: [fileId], references: [id])
+  File   File   @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId String @map("file_id")
 
-  Record   Record @relation(fields: [recordId], references: [id])
+  Record   Record @relation(fields: [recordId], references: [id], onDelete: Cascade)
   recordId Int    @map("record_id")
 
   @@unique([fileId, recordId])

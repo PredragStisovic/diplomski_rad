@@ -8,6 +8,6 @@ import { PrismaModule } from 'src/prisma/prisma.module';
   imports: [PrismaModule],
   controllers: [RecordFileController],
   providers: [RecordFileService, RecordFileRepository],
-  exports: [RecordFileService],
+  exports: [RecordFileService, RecordFileRepository],
 })
 export class RecordFileModule {}

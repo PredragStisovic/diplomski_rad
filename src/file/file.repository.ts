@@ -50,6 +50,21 @@ export class FilesRepository extends BaseRepository {
     return tx.file.findMany();
   }
 
+  async getFilesForRecordId(
+    recordId: number,
+    tx: PrismaServiceTransaction = this.prisma,
+  ) {
+    return tx.file.findMany({
+      where: {
+        RecordFiles: {
+          some: {
+            recordId,
+          },
+        },
+      },
+    });
+  }
+
   async updateFile(
     id: string,
     data: UpdateFileDto,

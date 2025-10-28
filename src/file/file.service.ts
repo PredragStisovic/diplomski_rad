@@ -87,6 +87,15 @@ export class FilesService {
     await this.fileStorage.deleteFile(id);
   }
 
+  async deleteFileForRecordId(recordId: number, tx?: PrismaServiceTransaction) {
+    const files = await this.repository.getFilesForRecordId(recordId, tx);
+
+    for (const file of files) {
+      await this.fileStorage.deleteFile(file.id);
+      await this.repository.deleteFile(file.id, tx);
+    }
+  }
+
   async createPhysicalFile(file: Express.Multer.File): Promise<string> {
     const fileUUID = randomUUID();
     const isImage = this.helper.isIncomingFileImage(file.mimetype);

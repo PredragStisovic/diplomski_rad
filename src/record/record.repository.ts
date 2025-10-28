@@ -79,8 +79,8 @@ export class RecordRepository extends BaseRepository {
     });
   }
 
-  delete(id: number) {
-    return this.prisma.record.delete({
+  delete(id: number, tx: PrismaServiceTransaction = this.prisma) {
+    return tx.record.delete({
       where: { id },
     });
   }
